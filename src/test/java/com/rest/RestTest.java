@@ -50,4 +50,13 @@ public class RestTest {
 
 
     }
+
+    @Test
+    public void shouldGetMaxIdForMaxUserId(){
+        List<Integer> userIds = when().request("GET", "posts/").then().extract().path("userId");
+        int maxUserId = Collections.max(userIds);
+        List<Integer> ids = when().request("GET", "/posts?userId="+maxUserId).then().extract().path("id");
+        int maxId = Collections.max(ids);
+        System.out.println("Max Id for Max UserID: " + maxId);
+    }
 }
