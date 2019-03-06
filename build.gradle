@@ -13,4 +13,9 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    // https://mvnrepository.com/artifact/io.rest-assured/rest-assured
+    testCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.3.0'
+    compile 'io.rest-assured:json-path:3.3.0'
+    compile 'io.rest-assured:xml-path:3.3.0'
+
 }
