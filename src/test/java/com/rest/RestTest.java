@@ -1,5 +1,7 @@
 package com.rest;
 
+import io.restassured.RestAssured;
+import io.restassured.config.EncoderConfig;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -10,17 +12,18 @@ import java.util.List;
 import java.util.Set;
 
 import static io.restassured.RestAssured.*;
+import static io.restassured.specification.ProxySpecification.host;
 
 public class RestTest {
     @Before
     public void setup() {
         baseURI = "https://jsonplaceholder.typicode.com/";
         port = 443;
-    }
-    @Ignore
-    @Test
-    public void whenRequestGet_thenOK(){
-        when().request("GET", "/users/eugenp").then().statusCode(200);
+
+        // For debugging and testing with Fiddler:
+        //RestAssured.proxy = host("127.0.0.1").withPort(8888);
+        // great option to manage lack of certification for https decryption in fiddler:
+        //RestAssured.useRelaxedHTTPSValidation();
     }
 
     @Test
@@ -59,14 +62,16 @@ public class RestTest {
 
     @Test
     public void shouldAddCommentToMaxId(){
+        EncoderConfig encoderconfig = new EncoderConfig();
+
         List<Integer> userIds = when().request("GET", "posts/").then().extract().path("userId");
         int maxUserId = Collections.max(userIds);
         List<Integer> ids = when().request("GET", "/posts?userId="+maxUserId).then().extract().path("id");
         int maxId = Collections.max(ids);
         System.out.println("Max Id for Max UserID: " + maxId);
-        String url = "/comments?postId=" + maxId;
-        //System.out.println(RestAssured.baseURI + ":" + RestAssured.port + RestAssured.basePath + Endpoint.GET_ENDPOINT);
 
-        given().param("postId", "100").log().all().when().post(url).then().assertThat().statusCode(201); //created
+        given().config(RestAssured.config().encoderConfig(encoderconfig.appendDefaultContentCharsetToContentTypeIfUndefined(false))).param("postId", "100").header("charset","utf-8f").log().all()
+                .when().post("/comments?postId=" + maxId)
+                .then().assertThat().statusCode(201); //created
     }
 }
