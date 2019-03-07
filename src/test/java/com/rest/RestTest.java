@@ -14,7 +14,6 @@ import static io.restassured.RestAssured.*;
 public class RestTest {
     @Before
     public void setup() {
-        //baseURI = "https://api.github.com";
         baseURI = "https://jsonplaceholder.typicode.com/";
         port = 443;
     }
@@ -47,8 +46,6 @@ public class RestTest {
             int maxId = Collections.max(ids);
             System.out.println("Max ID in this group: " + maxId);
         }
-
-
     }
 
     @Test
@@ -58,5 +55,18 @@ public class RestTest {
         List<Integer> ids = when().request("GET", "/posts?userId="+maxUserId).then().extract().path("id");
         int maxId = Collections.max(ids);
         System.out.println("Max Id for Max UserID: " + maxId);
+    }
+
+    @Test
+    public void shouldAddCommentToMaxId(){
+        List<Integer> userIds = when().request("GET", "posts/").then().extract().path("userId");
+        int maxUserId = Collections.max(userIds);
+        List<Integer> ids = when().request("GET", "/posts?userId="+maxUserId).then().extract().path("id");
+        int maxId = Collections.max(ids);
+        System.out.println("Max Id for Max UserID: " + maxId);
+        String url = "/comments?postId=" + maxId;
+        //System.out.println(RestAssured.baseURI + ":" + RestAssured.port + RestAssured.basePath + Endpoint.GET_ENDPOINT);
+
+        given().param("postId", "100").log().all().when().post(url).then().assertThat().statusCode(201); //created
     }
 }
